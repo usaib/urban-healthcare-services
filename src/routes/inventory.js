@@ -10,6 +10,11 @@ const router = express.Router();
 //= ===============================
 
 router.post("/getInventory", apiAuth, InventoryController.getInventory);
+router.post("/create", apiAuth, InventoryController.create);
+router.post("/remove", apiAuth, InventoryController.remove);
+router.post("/update", apiAuth, InventoryController.update);
+router.post("/dispense", apiAuth, InventoryController.dispense);
+
 // router.post("/createUser", apiAuth, UserController.create);
 // router.post("/deleteUser", apiAuth, UserController.remove);
 // router.post("/updateUser", apiAuth, UserController.update);

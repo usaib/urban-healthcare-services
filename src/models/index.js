@@ -3,6 +3,7 @@ const path = require("path");
 const Sequelize = require("sequelize");
 const user = require("./user");
 const token = require("./token");
+
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
 const config = require(`${__dirname}/../config/config.js`)[env];
@@ -52,4 +53,6 @@ db.Sequelize = Sequelize;
 
 db.user.hasMany(db.token);
 db.token.belongsTo(db.user);
+db.inventory.hasMany(db.dispense_in_records);
+db.dispense_in_records.belongsTo(db.inventory);
 module.exports = db;

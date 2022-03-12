@@ -21,18 +21,20 @@ export const getInventory = async (request, response) => {
 		});
 	}
 };
-export const OrdersById = async (request, response) => {
+
+export const create = async (request, response) => {
 	try {
-		const resp = await Service.OrdersById(request.body);
+		const resp = await Service.create(request.body);
 		if (resp.success) {
 			response.status(200).json({
-				message: "Order Fetched Successfully",
+				message: "Medicine created Successfully",
 				success: true,
 				data: resp
 			});
 		} else {
+			console.log("contro resp", resp);
 			response.status(200).json({
-				message: "Failed to get orders",
+				message: "Failed to create Medicine",
 				success: false,
 				data: resp
 			});
@@ -44,18 +46,19 @@ export const OrdersById = async (request, response) => {
 	}
 };
 
-export const sendEmail = async (request, response) => {
+export const remove = async (request, response) => {
 	try {
-		const resp = await email.sendMail(request.body);
-		if (resp) {
+		const resp = await Service.remove(request.body);
+		if (resp.success) {
 			response.status(200).json({
-				message: "Sent Successfully",
+				message: "Medicine Deleted Successfully",
 				success: true,
 				data: resp
 			});
 		} else {
+			console.log("Error resp", resp);
 			response.status(200).json({
-				message: "failed",
+				message: "Failed to delete Medicine",
 				success: false,
 				data: resp
 			});
@@ -66,86 +69,43 @@ export const sendEmail = async (request, response) => {
 		});
 	}
 };
-export const sendEmailToVendors = async (request, response) => {
+export const update = async (request, response) => {
 	try {
-		const resp = await ordersEmail.trigger(request.body);
-		if (resp) {
+		const resp = await Service.update(request.body);
+		if (resp.success) {
 			response.status(200).json({
-				message: "Sent Successfully",
+				message: "Medicine updated Successfully",
 				success: true,
 				data: resp
 			});
 		} else {
+			console.log("Error resp", resp);
 			response.status(200).json({
-				message: "failed",
+				message: "Failed to update Medicine",
 				success: false,
 				data: resp
 			});
 		}
 	} catch (e) {
-		response.status(400).json({
-			...e
-		});
-	}
-};
-export const sendEmailToManagement = async (request, response) => {
-	try {
-		const resp = await statusEmail.trigger(request.body);
-		if (resp) {
-			response.status(200).json({
-				message: "Sent Successfully",
-				success: true,
-				data: resp
-			});
-		} else {
-			response.status(200).json({
-				message: "failed",
-				success: false,
-				data: resp
-			});
-		}
-	} catch (e) {
+		console.log(e);
 		response.status(400).json({
 			...e
 		});
 	}
 };
 
-export const UpdateOmsStatus = async (request, response) => {
+export const dispense = async (request, response) => {
 	try {
-		const resp = await Service.UpdateOmsStatus(request.body);
+		const resp = await Service.dispense(request.body, request.user);
 		if (resp.success) {
 			response.status(200).json({
-				message: "OMS status updated Successfully",
+				message: "Consumed Successfully",
 				success: true,
 				data: resp
 			});
 		} else {
 			response.status(200).json({
-				message: "Failed to update OMS Status",
-				success: false,
-				data: resp
-			});
-		}
-	} catch (e) {
-		response.status(400).json({
-			...e
-		});
-	}
-};
-
-export const UpdatePreviewNumber = async (request, response) => {
-	try {
-		const resp = await Service.UpdatePreviewNumber(request.body);
-		if (resp.success) {
-			response.status(200).json({
-				message: "Preview Number updated Successfully",
-				success: true,
-				data: resp
-			});
-		} else {
-			response.status(200).json({
-				message: "Failed to update Preview Number",
+				message: "Failed to consume",
 				success: false,
 				data: resp
 			});

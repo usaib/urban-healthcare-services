@@ -1,5 +1,6 @@
 import { inventory } from "../models";
 import crypto from "crypto";
+import { dispense_in_records } from "../models";
 
 export const getInventory = async (params) => {
 	try {
@@ -23,77 +24,116 @@ export const getInventory = async (params) => {
 	}
 };
 
-// export const create = async (params) => {
-// 	try {
-// 		console.log(params);
-// 		const reqPass = crypto
-// 			.createHash("md5")
-// 			.update(params.password)
-// 			.digest("hex");
-// 		params.password = reqPass;
-// 		const Users = await user.create({
-// 			...params
-// 		});
-// 		if (params.vendor) {
-// 			const userVendors = await user_vendors.create({
-// 				userId: Users.id,
-// 				vendorId: params.vendor,
-// 				createdAt: new Date(),
-// 				updatedAt: new Date()
-// 			});
-// 		}
-// 		return {
-// 			success: true,
-// 			data: Users.id
-// 		};
-// 	} catch (error) {
-// 		return {
-// 			success: false,
-// 			data: error
-// 		};
-// 	}
-// };
+export const create = async (params) => {
+	try {
+		console.log(params);
 
-// export const remove = async (params) => {
-// 	try {
-// 		const users = await user.destroy({
-// 			where: {
-// 				id: params.id
-// 			}
-// 		});
-// 		return {
-// 			success: true,
-// 			data: users
-// 		};
-// 	} catch (error) {
-// 		return {
-// 			success: false,
-// 			data: error
-// 		};
-// 	}
-// };
+		const Medicines = await inventory.create({
+			...params
+		});
 
-// export const update = async (params) => {
-// 	try {
-// 		console.log(params);
+		return {
+			success: true,
+			data: Medicines.id
+		};
+	} catch (error) {
+		return {
+			success: false,
+			data: error
+		};
+	}
+};
 
-// 		const Users = await user.update(
-// 			{ ...params },
-// 			{
-// 				where: {
-// 					id: params.id
-// 				}
-// 			}
-// 		);
+export const remove = async (params) => {
+	try {
+		const medicines = await inventory.destroy({
+			where: {
+				id: params.id
+			}
+		});
+		return {
+			success: true,
+			data: medicines
+		};
+	} catch (error) {
+		return {
+			success: false,
+			data: error
+		};
+	}
+};
 
-// 		return {
-// 			success: true,
-// 			data: Users
-// 		};
-// 	} catch (error) {
-// 		return {
-// 			success: false,
-// 			data: error
-// 		};
-// 	}
-// };
+export const update = async (params) => {
+	try {
+		console.log(params);
+		const previousRecord = await inventory.findAll({
+			where: {
+				id: params.id
+			}
+		});
+		if (params.quantity) {
+			const quantityUpdatedRecord = await dispense_in_records.create({
+				medicineId: params.id,
+				quantityUpdated: params.quantity
+			});
+			console.log(quantityUpdatedRecord);
+		}
+		params.quantity =
+			previousRecord[0].dataValues.quantity + parseInt(params.quantity);
+		console.log(params);
+
+		const Medicines = await inventory.update(
+			{ ...params },
+			{
+				where: {
+					id: params.id
+				}
+			}
+		);
+
+		return {
+			success: true,
+			data: Medicines
+		};
+	} catch (error) {
+		return {
+			success: false,
+			data: error
+		};
+	}
+};
+
+export const dispense = async (params) => {
+	try {
+		console.log(params);
+		const previousRecord = await inventory.findAll({
+			where: {
+				id: params.id[0]
+			}
+		});
+		console.log("this is ", previousRecord[0].dataValues);
+		params.quantity =
+			previousRecord[0].dataValues.quantity + parseInt(params.amount);
+		params.consumed =
+			previousRecord[0].dataValues.consumed - parseInt(params.amount);
+
+		const Medicines = await inventory.update(
+			{ ...params },
+			{
+				where: {
+					id: params.id
+				}
+			}
+		);
+		return {
+			success: true,
+			data: Medicines
+		};
+	} catch (error) {
+		console.log(error);
+		return {
+			success: false,
+			data: error
+		};
+	}
+};
