@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 	const dispense_in_records = sequelize.define(
 		"dispense_in_records",
 		{
-			medicineId: {
+			inventoryId: {
 				type: DataTypes.INTEGER,
 				references: {
 					model: inventory,

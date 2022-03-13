@@ -1,16 +1,63 @@
-import { inventory } from "../models";
+import { inventory, Sequelize } from "../models";
 import crypto from "crypto";
 import { dispense_in_records } from "../models";
+const Op = Sequelize.Op;
 
 export const getInventory = async (params) => {
 	try {
+		let where;
+		if (params.filters) {
+			if (params.filters.name) {
+				where = {
+					name: params.filters.name
+				};
+			}
+		}
 		const inventoryData = await inventory.findAndCountAll({
 			order: [
 				["createdAt", "DESC"],
 				["name", "ASC"]
 			],
 			offset: params.offset,
-			limit: params.limit
+			limit: params.limit,
+			where: where
+		});
+		return {
+			success: true,
+			data: inventoryData
+		};
+	} catch (error) {
+		return {
+			success: false,
+			data: error
+		};
+	}
+};
+export const getDispenseInRecords = async (params) => {
+	try {
+		let where;
+		if (params.filters) {
+			if (params.filters.name) {
+				where = {
+					name: params.filters.name
+				};
+			}
+		}
+		const inventoryData = await dispense_in_records.findAndCountAll({
+			order: [["createdAt", "DESC"]],
+			include: {
+				model: inventory,
+				attributes: ["name", "type", "quantity"],
+				where: where
+			},
+			offset: params.offset,
+			limit: params.limit,
+			where: {
+				createdAt: {
+					[Op.lt]: params.endDate,
+					[Op.gt]: params.startDate
+				}
+			}
 		});
 		return {
 			success: true,
@@ -73,7 +120,7 @@ export const update = async (params) => {
 		});
 		if (params.quantity) {
 			const quantityUpdatedRecord = await dispense_in_records.create({
-				medicineId: params.id,
+				inventoryId: params.id,
 				quantityUpdated: params.quantity
 			});
 			console.log(quantityUpdatedRecord);
@@ -114,8 +161,30 @@ export const dispense = async (params) => {
 		console.log("this is ", previousRecord[0].dataValues);
 		params.quantity =
 			previousRecord[0].dataValues.quantity + parseInt(params.amount);
+
+		if (params.quantity < 0) {
+			return {
+				success: false,
+				data: {
+					message: "Quantity can never be negative"
+				}
+			};
+		}
+
 		params.consumed =
 			previousRecord[0].dataValues.consumed - parseInt(params.amount);
+		console.log(params.quantity, params.consumed);
+		if (params.quantity < params.consumed) {
+			console.log(params.quantity, params.consumed, "truecase");
+
+			return {
+				success: false,
+				data: {
+					message: "Please increase quantity of this stock"
+				}
+			};
+		}
+		delete params.quantity;
 
 		const Medicines = await inventory.update(
 			{ ...params },
