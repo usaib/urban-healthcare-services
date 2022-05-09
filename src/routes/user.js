@@ -10,6 +10,7 @@ const router = express.Router();
 //= ===============================
 
 router.post("/getAllUsers", apiAuth, UserController.allUsers);
+router.post("/me", UserController.getProfile);
 router.post("/createUser", apiAuth, UserController.create);
 router.post("/deleteUser", apiAuth, UserController.remove);
 router.post("/updateUser", apiAuth, UserController.update);

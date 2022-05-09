@@ -24,6 +24,25 @@ export const getAllUsers = async (params) => {
 	}
 };
 
+export const getProfile = async (params) => {
+	try {
+		const users = await user.findAll({
+			where: {
+				id: params.id
+			}
+		});
+		return {
+			success: true,
+			data: users
+		};
+	} catch (error) {
+		return {
+			success: false,
+			data: error
+		};
+	}
+};
+
 export const create = async (params) => {
 	try {
 		console.log(params);
